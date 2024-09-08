@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from .models import User
 from django.core.validators import validate_email
 from .validators import validate_signup
+from .serializers import UserSerializer
 
 
 # Create your views here.
@@ -24,4 +25,6 @@ class SignupView(APIView):
             email = request.data.get("email"),
         )
 
-        return Response({})
+        serializer = UserSerializer(user)
+
+        return Response(serializer.data)
