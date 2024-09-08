@@ -14,13 +14,9 @@ def validate_signup(signup_data):
     err_msg_list = []
 
     # validation
-    # validation username
+    # validation dup username
     if User.objects.filter(username=username).exists():
         err_msg_list.append("이미 존재하는 유저네임입니다.")
-    
-    # validation email
-    if User.objects.filter(email=email).exists():
-        err_msg_list.append("이미 존재하는 이메일입니다.")
     
     # validation nickname
     if len(nickname) > 20:
@@ -31,6 +27,10 @@ def validate_signup(signup_data):
         validate_email(email)
     except:
         err_msg_list.append("올바른 이메일 형식이 아닙니다.")
+
+    # validation dup email
+    if User.objects.filter(email=email).exists():
+        err_msg_list.append("이미 존재하는 이메일입니다.")
 
     if err_msg_list:
         return False, err_msg_list
