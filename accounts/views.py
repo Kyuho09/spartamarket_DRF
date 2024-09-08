@@ -7,6 +7,7 @@ from django.core.validators import validate_email
 from .validators import validate_signup
 from .serializers import UserSerializer
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # Create your views here.
@@ -16,33 +17,21 @@ class SignupView(APIView):
         if not is_valid:
             return Response({"error": err_msg}, status=400)
 
-        user = User.objects.create_user(
-            username = request.data.get("username"),
-            password = request.data.get("password"),
-            nickname = request.data.get("nickname"),
-            birth = request.data.get("birth"),
-            first_name = request.data.get("first_name"),
-            last_name = request.data.get("last_name"),
-            email = request.data.get("email"),
-        )
-
+        user = User.objects.create_user(**request.data)
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
 
 class SigninView(APIView):
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(username=username, password=password)
-
+        user = authenticate(**request.data)
         if not user:
             return Response(
                 {"error": "아이디 혹은 비밀번호가 올바르지 않습니다."}, status=400
             )
 
-        serializer = UserSerializer(user)
-        res_data = serializer.data
-        res_data["access_token"] = "123123"
-        res_data["refresh_token"] = "4545454"
+        res_data = UserSerializer(user).data
+        refresh = RefreshToken.for_user(user)
+        res_data["access_token"] = str(refresh)
+        res_data["refresh_token"] = str(refresh.access_token)
         return Response(res_data)
