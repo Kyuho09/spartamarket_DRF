@@ -6,6 +6,7 @@ from .models import User
 from django.core.validators import validate_email
 from .validators import validate_signup
 from .serializers import UserSerializer
+from django.contrib.auth import authenticate
 
 
 # Create your views here.
@@ -26,5 +27,22 @@ class SignupView(APIView):
         )
 
         serializer = UserSerializer(user)
-
         return Response(serializer.data)
+
+
+class SigninView(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        user = authenticate(username=username, password=password)
+
+        if not user:
+            return Response(
+                {"error": "아이디 혹은 비밀번호가 올바르지 않습니다."}, status=400
+            )
+
+        serializer = UserSerializer(user)
+        res_data = serializer.data
+        res_data["access_token"] = "123123"
+        res_data["refresh_token"] = "4545454"
+        return Response(res_data)
