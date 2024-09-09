@@ -17,6 +17,18 @@ class ProductListView(APIView):
             "updated_at": product.updated_at,
         }
         return Response(res_json)
-
-class ProductDetailVeiw:
-    pass
+    
+    def get(self, request):
+        products = Product.objects.all()
+        res_json = []
+        for product in products:
+            res_json.append(
+                {
+                    "id": product.id,
+                    "title": product.title,
+                    "content": product.content,
+                    "created_at": product.created_at,
+                    "updated_at": product.updated_at,
+                }
+            )
+        return Response(res_json)
