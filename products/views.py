@@ -32,3 +32,8 @@ class ProductDetailView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+    
+    def delete(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        product.delete()
+        return Response({"message": "게시글이 삭제되었습니다."}, status=204)
