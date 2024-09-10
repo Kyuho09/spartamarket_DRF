@@ -8,10 +8,10 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
 class ProductListView(APIView):
-    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
+        self.check_permissions(request)
         title = request.data.get("title")
         content = request.data.get("content")
         image = request.FILES.get("image")
@@ -24,15 +24,16 @@ class ProductListView(APIView):
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class ProductDetailView(APIView):
+
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         serializer = ProductSerializer(product)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    permission_classes = [IsAuthenticated]
-
+    
     def put(self, request, pk):
+        self.check_permissions(request)
         product = get_object_or_404(Product, pk=pk)
         if product.user != request.user:
             return Response({"message": "해당 게시글을 수정할 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
@@ -43,6 +44,7 @@ class ProductDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
+        self.check_permissions(request)
         product = get_object_or_404(Product, pk=pk)
         if product.user != request.user:
             return Response({"error": "해당 게시글을 삭제할 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
