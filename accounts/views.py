@@ -41,7 +41,7 @@ class SigninView(APIView):
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
+    def get(self, request, username):
+        user = User.objects.get(username=username)
         serializer = UserSerializer(user)
         return Response(serializer.data)
